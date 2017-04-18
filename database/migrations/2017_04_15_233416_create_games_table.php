@@ -16,10 +16,10 @@ class CreateGamesTable extends Migration
         //
 		Schema::create('games', function(Blueprint $table) {
 			$table -> increments('id');
-			$table -> boolean('in_progress');
+			$table -> boolean('in_progress') -> default(true);
 			$table -> string('whose_turn') -> references('people') -> on('id');
-			$table -> string('winner_id') -> references('people') -> on('id');
-			$table -> string('loser_id') -> references('people') -> on('id');
+			$table -> string('winner_id') -> references('people') -> on('id') -> default('');
+			$table -> string('loser_id') -> references('people') -> on('id') -> default('');
 		});
     }
 

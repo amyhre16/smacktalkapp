@@ -7,7 +7,7 @@ use Illuminate\Http\Response;
 
 use App\FlippedStatus;
 use App\Friends;
-use app\FriendsGame;
+use App\FriendsGame;
 use App\Game;
 use App\People;
 use App\PersonGame;
@@ -16,7 +16,7 @@ class SmackTalkController extends Controller
 {
     public function displayStats()
 	{
-		$stats = App\People :: where('id', '=', '10212631339123286')
+		$stats = People :: where('id', '=', '10212631339123286')
 					-> get();
 		return response() -> json($stats);
 		// return view('displaystats', compact('stats'));
@@ -24,16 +24,15 @@ class SmackTalkController extends Controller
 
 	public function displayFriends()
 	{
-		$friends = App\Friends :: -> where(function($query) {
-			$query -> where('person_1_id', '=', '10212631339123286')
-					-> orWhere('person_2_id', '=', '10212631339123286');
-		});
+		$friends = Friends :: where('person_1_id', '=', '10212631339123286')
+					-> orWhere('person_2_id', '=', '10212631339123286')
+					-> get();
 
 		return response() -> json($friends);
 	}
 
-	public function addUser()
+	public function displayGames()
 	{
-
+		return response() -> json();
 	}
 }
