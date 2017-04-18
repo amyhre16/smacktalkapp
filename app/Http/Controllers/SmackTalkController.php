@@ -14,25 +14,43 @@ use App\PersonGame;
 
 class SmackTalkController extends Controller
 {
-    public function displayStats()
+    public function displayStats(Request $request)
 	{
-		$stats = People :: where('id', '=', '10212631339123286')
+		$stats = People :: where('id', '=', $request -> user_id)
 					-> get();
+					
 		return response() -> json($stats);
-		// return view('displaystats', compact('stats'));
 	}
 
-	public function displayFriends()
+	public function displayFriends(Request $request)
 	{
-		$friends = Friends :: where('person_1_id', '=', '10212631339123286')
-					-> orWhere('person_2_id', '=', '10212631339123286')
+		$friends = Friends :: where('person_1_id', '=', $request -> user_id)
+					-> orWhere('person_2_id', '=', $request -> user_id)
 					-> get();
 
 		return response() -> json($friends);
 	}
 
-	public function displayGames()
+	public function newUser(Request $request)
 	{
-		return response() -> json();
+		$newUser = new People();
+		$newUser -> id = $request -> newUser['id'];
+		$newUser -> name = $request -> newUser['name'];
+		$newUser -> picture = $request -> newUser['picture']['data']['url'];
+
+		$newUser -> save();
+
+		$friendsList = $request -> friends_list;
+
+		$newFriends = [];
+
+		foreach ($friendsList as $friend) {
+			array_push($newFriends, ['person_1_id' => $request -> newUser['id'], 'person_2_id' => $friend['id']]);
+		}
+
+		Friends :: insert($newFriends);
+		return response() -> json($newFriends);
 	}
+
+
 }

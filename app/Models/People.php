@@ -8,6 +8,8 @@ class People extends Model
 {	
 	// @protected $table = 'people';
 
+	public $timestamps = false;
+
 	public function games()
 	{
 		return $this -> hasMany('App\PersonGame');
