@@ -4,7 +4,7 @@ namespace App;
 
 class FriendsGame extends Model
 {
-	@protected $table = 'friends_game';
+	// @protected $table = 'friends_game';
 
 	public function cards()
 	{

@@ -17,10 +17,10 @@ class CreatePeopleTable extends Migration
 			$table -> string('id');
 			$table -> string('name');
 			$table -> string('picture');
-			$table -> integer('wins');
-			$table -> integer('losses');
-			$table -> integer('currentStreak');
-			$table -> integer('longestStreak');
+			$table -> integer('wins') -> default(0);
+			$table -> integer('losses') -> default(0);
+			$table -> integer('currentStreak') -> default(0);
+			$table -> integer('longestStreak') -> default(0);
 
 		});
     }

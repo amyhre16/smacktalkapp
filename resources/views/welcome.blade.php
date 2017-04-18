@@ -79,7 +79,22 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Laravel
+                    <?php
+						// echo "Name: " . $stats[0] -> name . "<br />";
+						// echo "Picture: " . $stats[0] -> picture . "<br />";
+						// echo "Wins: " . $stats[0] -> wins . "<br />";
+						// echo "Losses: " . $stats[0] -> losses . "<br />";
+						// echo "Current Streak: " . $stats[0] -> currentStreak . "<br />";
+						// echo "Longest Streak: " . $stats[0] -> longestStreak;
+					?>
+					<?php echo $stats;?>
+					<!--@foreach ($stats as $stat)
+						<div>
+							<p>{{ $stat -> id }}</p>
+							<p>{{ $stat -> player_1_id }}</p>
+							<p>{{ $stat -> player_2_id }}</p>
+						</div>
+					@endforeach-->
                 </div>
 
                 <div class="links">

@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\Response;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,5 +14,18 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+	// $stats = App\People::where('id', '=', '10212631339123286')
+	// 				-> get();
+
+
+	$stats = App\Friends :: where('person_1_id', '=', '10212631339123286')
+			-> orWhere('person_2_id', '=', '10212631339123286')
+			-> get();
+    // return view('welcome', compact('stats'));
+	return response() -> json($stats);
 });
+
+
+Route::get('/displayStats', 'SmackTalkController@displayStats');
+
+Route::get('/displayFriends', 'SmackTalkController@displayFriends');

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class People extends Model
 {	
-	@protected $table = 'people';
+	// @protected $table = 'people';
 
 	public function games()
 	{
