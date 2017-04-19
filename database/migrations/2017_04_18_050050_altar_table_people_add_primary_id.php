@@ -16,7 +16,7 @@ class AltarTablePeopleAddPrimaryId extends Migration
         //
 		Schema::table('people', function(Blueprint $table) {
 			$table -> primary('id');
-		})
+		});
     }
 
     /**
