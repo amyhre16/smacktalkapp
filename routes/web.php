@@ -15,6 +15,10 @@ use App\Friends;
 |
 */
 
+Route::get('/', function() {
+	return 'Smacktalk People!';
+});
+
 Route::get('/displayStats', 'SmackTalkController@displayStats');
 
 Route::get('/displayFriends', 'SmackTalkController@displayFriends');
