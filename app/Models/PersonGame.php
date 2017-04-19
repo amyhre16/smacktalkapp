@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PersonGame extends Model
 {
-	// @protected $table = 'person_game';
+	protected $table = 'person_game';
 
 	public $timestamps = false;
 

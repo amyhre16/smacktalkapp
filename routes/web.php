@@ -22,3 +22,7 @@ Route::get('/displayFriends', 'SmackTalkController@displayFriends');
 // Route::get('/displayGames', 'SmackTalkController@displayGames');
 
 Route::post('/newUser', 'SmackTalkController@newUser');
+
+Route::post('/createGame', 'SmackTalkController@createGame');
+
+Route::put('/finishGame', 'SmackTalkController@finishGame');

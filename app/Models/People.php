@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class People extends Model
 {	
-	// @protected $table = 'people';
-
 	public $timestamps = false;
 
 	public function games()
@@ -18,5 +16,10 @@ class People extends Model
 	public function friends()
 	{
 		return $this -> hasMany('App\Friends');
+	}
+
+	public function cards()
+	{
+		return $this -> hasMany('App\FriendsGame');
 	}
 }

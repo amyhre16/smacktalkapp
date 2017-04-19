@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class FlippedStatus extends Model
 {
-	// @protected $table = 'flipped_status';
+	protected $table = 'flipped_status';
+	
 	public $timestamps = false;
 	
 	public function cards()
