@@ -31,4 +31,4 @@ Route::post('/createGame', 'SmackTalkController@createGame');
 
 Route::put('/finishGame', 'SmackTalkController@finishGame');
 
-Route::put('/updateFriendsList', 'SmackTalkController@updateFriendsList');
+Route::put('/updateUserInfo', 'SmackTalkController@updateUserInfo');

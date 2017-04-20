@@ -209,7 +209,18 @@ class SmackTalkController extends Controller
 		parameters are user id and array of friend objects
 		example
 			{
-				"user_id": "10213667577749724",
+				"user_info": {
+     				"name": "Anthony Myhre",
+					"id": "1624671107562854",
+					"picture": {
+						"data": {
+							"height": 480,
+							"is_silhouette": false,
+							"url": "https://scontent.xx.fbcdn.net/v/t1.0-1/s480x480/14702276_1411905718839395_8516470454163265900_n.jpg?oh=8199abad883e905536db2cfc1732fd2e&oe=5984E748",
+							"width": 479
+						}
+					}
+				},
 				"friends_list": [
 					{
 						"name": "Ian Shirley",
@@ -238,9 +249,15 @@ class SmackTalkController extends Controller
 				]
 			}
 	*/
-	public function updateFriendsList(Request $request) {
+	public function updateUserInfo(Request $request) {
 		$friendsList = $request -> friends_list;
-		$user_id = $request -> user_id;
+		// $user_id = $request -> user_id;
+		$user = $request -> user_info;
+		$user_id = $user['id'];
+		$user_name = $user['name'];
+		$user_picture = $user['picture']['data']['url'];
+		// return response() -> json($user['picture']['data']['url']);
+
 		// if the friends list is not empty
 		// need to grab user's friends and determine what friends from graph api are new
 		// once new friends have been determined, add relationships 
@@ -277,24 +294,33 @@ class SmackTalkController extends Controller
 
 				Friends :: insert($newFriends);
 			}
-
-
-			// // if the 
-			// if (count($currFriendIds) > 0) {
-
-			// 	// if the user does have friends
-			// 	if (count($friendsList) > 0) {
-
-			// 	}
-			// }
-
-
-			return response() -> json($newFriends);
 		}
 
-		// if the friends list is empty, then return an empty object and do nothing
-		else {
-			return response() -> json();
+		$currentUserInfo = People :: where('id', '=', $user_id) -> get()[0];
+		$currentName = $currentUserInfo['name'];
+		$currentPicture =  $currentUserInfo['picture'];
+		
+
+		if (($currentName != $user_name) && ($currentPicture != $user_picture)) {
+			$currentName = $user_name;
+			$currentPicture = $user_picture;
+
+			People :: where('id', '=', $user_id)
+				-> update(['name' => $currentName, 'picture' => $currentPicture]);
 		}
+
+		else if ($currentName != $user_name) {
+			$currentName = $user_name;
+			People :: where('id', '=', $user_id)
+				-> update(['name' => $currentName]);
+		}
+
+		else if ($currentPicture != $user_picture) {
+			$currentPicture = $user_picture;
+			People :: where('id', '=', $user_id)
+				-> update(['picture' => $currentPicture]);
+		}
+
+		return response() -> json(['name' => $currentName, 'picture' => $currentPicture]);
 	}
 }
