@@ -14,6 +14,11 @@ use App\PersonGame;
 
 class SmackTalkController extends Controller
 {
+	/*
+		parameter is user's id
+		ex:
+			route?user_id=10212631339123286
+	*/
     public function displayStats(Request $request)
 	{
 		$stats = People :: where('id', '=', $request -> user_id)
@@ -22,6 +27,11 @@ class SmackTalkController extends Controller
 		return response() -> json($stats);
 	}
 
+	/*
+		parameter is user's id
+		ex:
+			route?user_id=10212631339123286
+	*/
 	public function displayFriends(Request $request)
 	{
 		$relationships = Friends :: where('person_1_id', '=', $request -> user_id)
@@ -45,6 +55,50 @@ class SmackTalkController extends Controller
 		return response() -> json($friendsInfo);
 	}
 
+	/*
+		parameters are user object and array of friend objects
+		example
+			{
+				"newUser": {
+					"name": "Alex Slayton",
+					"id": "10213667577749724",
+					"picture": {
+						"data": {
+							"height": 480,
+							"is_silhouette": false,
+							"url": "https://scontent.xx.fbcdn.net/v/t1.0-1/p480x480/1380798_10202475188066977_33540289_n.jpg?oh=746baee298461057e7c0739201c5d900&oe=59963C2F",
+							"width": 480
+						}
+					}
+				},
+				"friends_list": [
+					{
+						"name": "Ian Shirley",
+						"id": "10154210129687000",
+						"picture": {
+							"data": {
+								"height": 359,
+								"is_silhouette": false,
+								"url": "https://scontent.xx.fbcdn.net/v/t1.0-1/17799271_10154202452472000_7553236793587612217_n.jpg?oh=ba24a40b43395306461f7aa7d5344747&oe=599AF32F",
+								"width": 372
+							}
+						}
+					},
+					{
+						"name": "Latisha McNeel",
+						"id": "10155316755764429",
+						"picture": {
+							"data": {
+								"height": 480,
+								"is_silhouette": false,
+								"url": "https://scontent.xx.fbcdn.net/v/t1.0-1/p480x480/17799252_10155294412174429_8990644720946975186_n.jpg?oh=a9086e532ea378f0cef575b3031aea74&oe=5988151E",
+								"width": 480
+							}
+						}
+					}
+				]
+			}
+	*/
 	public function newUser(Request $request)
 	{
 		$newUser = new People();
@@ -69,20 +123,30 @@ class SmackTalkController extends Controller
 	}
 
 
-	// parameters are game id and winner/loser ids
+	/*
+		parameters are game id and winner/loser ids
+		example
+			{
+				"game_id": 22,
+				"winner_id": "10154550340256172",
+				"loser_id": "10154210129687000"
+			}
+	*/
 	public function finishGame(Request $request) {
-		// $game = Game :: where('id', $request -> game_id) -> get();
-		$game = Game :: where('id', $request -> game_id) -> update(['in_progress' => 0, 'winner_id' => $request -> winner_id, 'loser_id' => $request -> loser_id]);
-		// $game -> in_progress = 0;
-		// $game -> winner_id = $request -> winner_id;
-		// $game -> loser_id = $request -> loser_id;
-
-		// $game -> save();
+		$game = Game :: where('id', $request -> game_id)
+			-> update(['in_progress' => 0, 'winner_id' => $request -> winner_id, 'loser_id' => $request -> loser_id]);
 		
 		return response() -> json($game);
 	}
 
-	// parameters are player ids and whose turn it is (i.e., who created the game)
+	/*
+		parameters are player ids and whose turn it is (i.e., who created the game)
+		example:
+			{
+				"players": ["10154210129687000", "10154550340256172"],
+				"whose_turn": "10154210129687000"
+			}
+	*/
 	public function createGame(Request $request) {
 		$newGame = new Game();
 
@@ -138,5 +202,99 @@ class SmackTalkController extends Controller
 		// want to return associative array that contains friend. Don't need to include flipped status b/c it's a new game therefore all cards are not flipped
 		return response() -> json($newCards);
 		// return response() -> json(['friends_game' => $friends, 'flipped_status' => $flipped_status]);
+	}
+
+
+	/*
+		parameters are user id and array of friend objects
+		example
+			{
+				"user_id": "10213667577749724",
+				"friends_list": [
+					{
+						"name": "Ian Shirley",
+						"id": "10154210129687000",
+						"picture": {
+							"data": {
+								"height": 359,
+								"is_silhouette": false,
+								"url": "https://scontent.xx.fbcdn.net/v/t1.0-1/17799271_10154202452472000_7553236793587612217_n.jpg?oh=ba24a40b43395306461f7aa7d5344747&oe=599AF32F",
+								"width": 372
+							}
+						}
+					},
+					{
+						"name": "Latisha McNeel",
+						"id": "10155316755764429",
+						"picture": {
+							"data": {
+								"height": 480,
+								"is_silhouette": false,
+								"url": "https://scontent.xx.fbcdn.net/v/t1.0-1/p480x480/17799252_10155294412174429_8990644720946975186_n.jpg?oh=a9086e532ea378f0cef575b3031aea74&oe=5988151E",
+								"width": 480
+							}
+						}
+					}
+				]
+			}
+	*/
+	public function updateFriendsList(Request $request) {
+		$friendsList = $request -> friends_list;
+		$user_id = $request -> user_id;
+		// if the friends list is not empty
+		// need to grab user's friends and determine what friends from graph api are new
+		// once new friends have been determined, add relationships 
+		if (count($friendsList) > 0) {
+			// grab the user's current friends
+			$currFriends = Friends :: where('person_1_id', '=', $user_id)
+				-> orWhere('person_2_id', '=', $user_id)
+				-> get();
+			
+			// this is an array in which the user's friends' ids will be stored
+			$currFriendIds = [];
+
+			// if the user does have friends, store their ids in the array
+			if (count($currFriends) > 0) {
+				foreach ($currFriends as $friend) {
+					if ($friend -> person_1_id == $user_id) {
+						array_push($currFriendIds, $friend -> person_2_id);
+					}
+
+					else {
+						array_push($currFriendIds, $friend -> person_1_id);
+					}
+				}
+				// return response() -> json($currFriendIds);
+				// this is the array in which the new friends' ids will be stored
+				$newFriends = [];
+
+				foreach($friendsList as $friend) {
+					// if this friend is NOT already a friend, then add their id to the array
+					if (!in_array($friend['id'], $currFriendIds)) {
+						array_push($newFriends, ['person_1_id' => $user_id, 'person_2_id' => $friend['id']]);
+					}
+				}
+
+				Friends :: insert($newFriends);
+			}
+
+
+			// // if the 
+			// if (count($currFriendIds) > 0) {
+
+			// 	// if the user does have friends
+			// 	if (count($friendsList) > 0) {
+
+			// 	}
+			// }
+
+
+			return response() -> json($newFriends);
+		}
+
+		// if the friends list is empty, then return an empty object and do nothing
+		else {
+			return response() -> json();
+		}
 	}
 }
