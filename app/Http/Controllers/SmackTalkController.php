@@ -250,8 +250,9 @@ class SmackTalkController extends Controller
 			}
 	*/
 	public function updateUserInfo(Request $request) {
-		dd($request);
+		
 		$friendsList = $request -> friends_list;
+		return response() -> json($friendsList);
 		$user = $request -> user_info;
 		$user_id = $user['id'];
 		$user_name = $user['name'];
