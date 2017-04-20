@@ -291,12 +291,13 @@ class SmackTalkController extends Controller
 						array_push($newFriends, ['person_1_id' => $user_id, 'person_2_id' => $friend['id']]);
 					}
 				}
-
-				Friends :: insert($newFriends);
+				return response() -> json($newFriends);
+				// Friends :: insert($newFriends);
 			}
 		}
 
 		$currentUserInfo = People :: where('id', '=', $user_id) -> get()[0];
+		// return response() -> json($currentUserInfo);
 		$currentName = $currentUserInfo['name'];
 		$currentPicture =  $currentUserInfo['picture'];
 		
