@@ -252,7 +252,7 @@ class SmackTalkController extends Controller
 	public function updateUserInfo(Request $request) {
 		
 		$friendsList = $request -> friends_list;
-		return response() -> json($friendsList);
+		// return response() -> json($friendsList);
 		$user = $request -> user_info;
 		$user_id = $user['id'];
 		$user_name = $user['name'];
@@ -323,4 +323,13 @@ class SmackTalkController extends Controller
 
 		return response() -> json(['name' => $currentName, 'picture' => $currentPicture]);
 	}
+
+	/*
+		parameters will be game id, user id, array of cards that got flipped
+		example
+			{
+				"game_id": 24,
+				"user_id": ""
+			}
+	*/
 }
