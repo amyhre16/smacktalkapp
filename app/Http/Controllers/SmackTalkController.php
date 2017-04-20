@@ -267,6 +267,9 @@ class SmackTalkController extends Controller
 				-> orWhere('person_2_id', '=', $user_id)
 				-> get();
 			
+			// this is the array in which the new friends' ids will be stored
+			$newFriends = [];
+
 			// this is an array in which the user's friends' ids will be stored
 			$currFriendIds = [];
 
@@ -282,8 +285,6 @@ class SmackTalkController extends Controller
 					}
 				}
 
-				// this is the array in which the new friends' ids will be stored
-				$newFriends = [];
 
 				foreach($friendsList as $friend) {
 					// if this friend is NOT already a friend, then add their id to the array
@@ -291,9 +292,15 @@ class SmackTalkController extends Controller
 						array_push($newFriends, ['person_1_id' => $user_id, 'person_2_id' => $friend['id']]);
 					}
 				}
-				return response() -> json($newFriends);
-				// Friends :: insert($newFriends);
 			}
+
+			else {
+				foreach($friendsList as $friend) {
+					array_push($newFriends, ['person_1_id' => $user_id, 'person_2_id' => $friend['id']]);
+				}
+			}
+			// return response() -> json($newFriends);
+			Friends :: insert($newFriends);
 		}
 
 		$currentUserInfo = People :: where('id', '=', $user_id) -> get()[0];
