@@ -250,13 +250,12 @@ class SmackTalkController extends Controller
 			}
 	*/
 	public function updateUserInfo(Request $request) {
+		dd($request);
 		$friendsList = $request -> friends_list;
-		// $user_id = $request -> user_id;
 		$user = $request -> user_info;
 		$user_id = $user['id'];
 		$user_name = $user['name'];
 		$user_picture = $user['picture']['data']['url'];
-		// return response() -> json($user['picture']['data']['url']);
 
 		// if the friends list is not empty
 		// need to grab user's friends and determine what friends from graph api are new
@@ -281,7 +280,7 @@ class SmackTalkController extends Controller
 						array_push($currFriendIds, $friend -> person_1_id);
 					}
 				}
-				// return response() -> json($currFriendIds);
+
 				// this is the array in which the new friends' ids will be stored
 				$newFriends = [];
 
