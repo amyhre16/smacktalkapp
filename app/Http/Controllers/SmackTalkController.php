@@ -12,8 +12,15 @@ use App\Game;
 use App\People;
 use App\PersonGame;
 
+use DB;
+
 class SmackTalkController extends Controller
 {
+	// $flippedStatus;
+
+	// public function __construct(FlippedStatus $flippedStatus){
+	// 	$this->flippedStatus = $flippedStatus;
+	// }
 	/*
 		parameter is user's id
 		ex:
@@ -335,6 +342,7 @@ class SmackTalkController extends Controller
 		parameters will be game id, user id, array of cards that got flipped
 		example
 			{
+				"user_id": "10154210129687000",
 				"game_id": 24,
 				"whose_turn": "10154210129687000",
 				"next_up": "10154550340256172",
@@ -342,19 +350,41 @@ class SmackTalkController extends Controller
 			}
 	*/
 	public function updateGame(Request $request) {
+		$user_id = $request -> user_id;
 		$game_id = $request -> game_id;
 		$whose_turn = $request -> whose_turn;
 		$cards = $request -> cards;
 		$next_up = $request -> next_up;
 
-		// update the flipped_statuses
-		foreach ($cards as $card) {
-			FlippedStatus :: where('id', '=', $card)
-				-> update(['flipped_status' => 1]);
+		
+		// user is going to guess next
+		if ($user_id == $next_up) {
+		// Grab the next_up cards and cards information in People
+			$nextCards = DB ::table('flipped_status')
+				-> select('people.name', 'people.picture', 'flipped_status.id as card_id', 'friends_game.game_id', 'flipped_status.flipped_status')
+				-> join('friends_game', 'flipped_status.friends_game_id', '=', 'friends_game.id') 
+				-> join('people', 'friends_game.friend_id', '=', 'people.id')
+				-> where('flipped_status.player_id', '=', $next_up)
+				-> where('friends_game.game_id', '=', $game_id)
+				-> get();
+
+			return response() -> json($nextCards);
 		}
 
-		
-		
-		return response() -> json();
+		// user just got done guessing
+		else {
+			// update the flipped_statuses
+			FlippedStatus :: whereIn('id', $cards)->update(['flipped_status' => 1]);
+			
+			$nextTarget = DB ::table('flipped_status')
+				-> select('people.name', 'people.picture', 'flipped_status.id as card_id', 'friends_game.game_id')
+				-> join('friends_game', 'flipped_status.friends_game_id', '=', 'friends_game.id') 
+				-> join('people', 'friends_game.friend_id', '=', 'people.id')
+				-> where('flipped_status.player_id', '=', $whose_turn)
+				-> where('friends_game.game_id', '=', $game_id)
+				-> where('flipped_status.target_card', '=', 1)
+				-> get();
+			return response() -> json($nextTarget);
+		}
 	}
 }
