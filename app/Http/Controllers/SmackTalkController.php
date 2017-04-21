@@ -63,6 +63,75 @@ class SmackTalkController extends Controller
 	}
 
 	/*
+		parameter is user id
+		ex:
+			route?user_id=10154210129687000
+	*/
+	public function displayGames(Request $request) {
+		$user_id = $request -> user_id;
+
+		$games = DB :: table('people')
+			-> distinct()
+			-> select('opponent.id as opponent_id', 'opponent.name as opponent_name', 'opponent.picture as opponent_picture', 'games.id as game_id', 'games.whose_turn')
+			-> leftJoin('person_game', 'people.id', '=', 'person_game.person_id')
+			-> leftJoin('games', 'person_game.id', '=', 'games.id')
+			-> leftJoin('person_game as opponent_game', 'games.id', '=', 'opponent_game.game_id')
+			-> leftJoin('opponent_game', 'people.id', '<>', 'opponent_game.person_id')
+			-> leftJoin('people opponent', 'opponent_game.person_id', '=', 'opponent.id')
+			-> where('games.in_progress', '=', 1)
+			-> where('people.id', '=', $user_id)
+			-> get();
+		
+		return response() -> json($games);
+	}
+
+	/*
+		parameters are user id and game id
+		ex:
+			{
+				"user_id": "10154210129687000",
+				"game_id": 41
+			}
+	*/
+	public function continueGame(Request $request) {
+		$user_id = $request -> user_id;
+		$game_id = $request -> game_id;
+		
+		$whose_turn = Game :: select('whose_turn')
+				-> where('id', '=', $game_id)
+				-> get()[0];
+		
+		$whose_turn = $whose_turn['whose_turn'];
+		
+		// user is guessing, return their cards
+		if ($whose_turn == $user_id) {
+			$cards = DB :: table('flipped_status')
+				-> select('people.name', 'people.picture', 'flipped_status.id as card_id', 'friends_game.game_id', 'flipped_status.flipped_status')
+				-> join('friends_game', 'flipped_status.friends_game_id', '=', 'friends_game.id') 
+				-> join('people', 'friends_game.friend_id', '=', 'people.id')
+				-> where('flipped_status.player_id', '=', $user_id)
+				-> where('friends_game.game_id', '=', $game_id)
+				-> get();
+		}
+
+		// user is not guessing, return their target card
+		else {
+			$cards = DB :: table('flipped_status')
+				-> select('people.name', 'people.picture', 'flipped_status.id as card_id', 'friends_game.game_id', 'flipped_status.target_card')
+				-> join('friends_game', 'flipped_status.friends_game_id', '=', 'friends_game.id') 
+				-> join('people', 'friends_game.friend_id', '=', 'people.id')
+				-> where('flipped_status.player_id', '=', $user_id)
+				-> where('friends_game.game_id', '=', $game_id)
+				-> where('flipped_status.target_card', '=', 1)
+				-> get();
+		}
+
+		return response() -> json($cards);
+	}
+
+	
+
+	/*
 		parameters are user object and array of friend objects
 		example
 			{
