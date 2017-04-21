@@ -201,7 +201,6 @@ class SmackTalkController extends Controller
 		
 		// want to return associative array that contains friend. Don't need to include flipped status b/c it's a new game therefore all cards are not flipped
 		return response() -> json($newCards);
-		// return response() -> json(['friends_game' => $friends, 'flipped_status' => $flipped_status]);
 	}
 
 
@@ -252,7 +251,7 @@ class SmackTalkController extends Controller
 	public function updateUserInfo(Request $request) {
 		
 		$friendsList = $request -> friends_list;
-		// return response() -> json($friendsList);
+
 		$user = $request -> user_info;
 		$user_id = $user['id'];
 		$user_name = $user['name'];
@@ -299,12 +298,11 @@ class SmackTalkController extends Controller
 					array_push($newFriends, ['person_1_id' => $user_id, 'person_2_id' => $friend['id']]);
 				}
 			}
-			// return response() -> json($newFriends);
+
 			Friends :: insert($newFriends);
 		}
 
 		$currentUserInfo = People :: where('id', '=', $user_id) -> get()[0];
-		// return response() -> json($currentUserInfo);
 		$currentName = $currentUserInfo['name'];
 		$currentPicture =  $currentUserInfo['picture'];
 		
@@ -333,11 +331,30 @@ class SmackTalkController extends Controller
 	}
 
 	/*
+		need to return 
 		parameters will be game id, user id, array of cards that got flipped
 		example
 			{
 				"game_id": 24,
-				"user_id": ""
+				"whose_turn": "10154210129687000",
+				"next_up": "10154550340256172",
+				"cards": [65, 67, 69]
 			}
 	*/
+	public function updateGame(Request $request) {
+		$game_id = $request -> game_id;
+		$whose_turn = $request -> whose_turn;
+		$cards = $request -> cards;
+		$next_up = $request -> next_up;
+
+		// update the flipped_statuses
+		foreach ($cards as $card) {
+			FlippedStatus :: where('id', '=', $card)
+				-> update(['flipped_status' => 1]);
+		}
+
+		
+		
+		return response() -> json();
+	}
 }
