@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
+use App\Model\ActiveGame;
 use App\FlippedStatus;
 use App\Friends;
 use App\FriendsGame;
@@ -70,7 +71,7 @@ class SmackTalkController extends Controller
 	public function displayGames(Request $request) {
 		$user_id = $request -> user_id;
 
-		$games = DB :: table('people')
+		/*$games = DB :: table('people')
 			-> distinct()
 			-> select('opponent.id as opponent_id', 'opponent.name as opponent_name', 'opponent.picture as opponent_picture', 'games.id as game_id', 'games.whose_turn')
 			-> leftJoin('person_game', 'people.id', '=', 'person_game.person_id')
@@ -80,6 +81,11 @@ class SmackTalkController extends Controller
 			-> leftJoin('people opponent', 'opponent_game.person_id', '=', 'opponent.id')
 			-> where('games.in_progress', '=', 1)
 			-> where('people.id', '=', $user_id)
+			-> get();*/
+		
+		$games = DB :: table('active_games')
+			-> select('opponent_id', 'opponent_name', 'opponent_picture', 'game_id', 'whose_turn')
+			-> where('id', '=', $user_id)
 			-> get();
 		
 		return response() -> json($games);
@@ -304,10 +310,8 @@ class SmackTalkController extends Controller
 		FlippedStatus :: insert($flipped_status_2);
 
 		// return response() -> json([$newGame -> id, $newGame -> whose_turn]);
-		// $cardInfo = People :: whereIn('id', $friend_ids) -> get();
-		// $newCards = $newFriendsGame -> friends() -> join('people', 'people.id', '=', 'friends_game.friend_id') -> get();
 		$nextCards = DB :: table('flipped_status')
-				-> select('people.name', 'people.picture', 'flipped_status.id as card_id', 'friends_game.game_id', 'flipped_status.flipped_status', 'flipped_status.target_card')
+				-> select('people.name', 'people.picture', 'flipped_status.id as card_id', 'friends_game.game_id', 'flipped_status.flipped_status')
 				-> join('friends_game', 'flipped_status.friends_game_id', '=', 'friends_game.id') 
 				-> join('people', 'friends_game.friend_id', '=', 'people.id')
 				-> where('flipped_status.player_id', '=', $newGame -> whose_turn)
