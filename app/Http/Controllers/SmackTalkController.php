@@ -190,6 +190,22 @@ class SmackTalkController extends Controller
 			}
 		}
 
+		// return response() -> json($friends);
+
+		$newCards = [];
+		$indexes = [];
+
+		while (count($indexes) < 12) {
+			$random_index = rand(0, count($friends) - 1);
+
+			if (!in_array($random_index, $indexes)) {
+				array_push($newCards, $friends[$random_index]);
+				array_push($indexes, $random_index);
+			}
+		}
+
+		// return response() -> json($newCards);
+
 		FriendsGame :: insert($friends);
 		
 		$flipped_status = [];
@@ -375,7 +391,7 @@ class SmackTalkController extends Controller
 		else {
 			// update the flipped_statuses
 			FlippedStatus :: whereIn('id', $cards)->update(['flipped_status' => 1]);
-			
+
 			$nextTarget = DB ::table('flipped_status')
 				-> select('people.name', 'people.picture', 'flipped_status.id as card_id', 'friends_game.game_id')
 				-> join('friends_game', 'flipped_status.friends_game_id', '=', 'friends_game.id') 
