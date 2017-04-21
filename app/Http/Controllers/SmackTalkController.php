@@ -270,7 +270,7 @@ class SmackTalkController extends Controller
 		$newCards = [];
 		$indexes = [];
 
-		while (count($indexes) < 5) {
+		while (count($indexes) < 12) {
 			$random_index = rand(0, count($friends) - 1);
 
 			if (!in_array($random_index, $indexes)) {
