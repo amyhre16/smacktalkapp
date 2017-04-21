@@ -160,7 +160,7 @@ class SmackTalkController extends Controller
 		$newGame -> whose_turn = $request['whose_turn'];
 
 		$newGame -> save();
-
+		// return response() -> json($newGame);
 		$newPersonGame = [['person_id' => $request -> players[0], 'game_id' => $newGame -> id],
 			['person_id' => $request -> players[1], 'game_id' => $newGame -> id]];
 
@@ -206,7 +206,7 @@ class SmackTalkController extends Controller
 
 		// return response() -> json($newCards);
 
-		FriendsGame :: insert($friends);
+		FriendsGame :: insert($newCards);
 		
 		$flipped_status_1 = [];
 		$flipped_status_2 = [];
@@ -214,7 +214,7 @@ class SmackTalkController extends Controller
 		$newFriendsGame = FriendsGame :: where('game_id', '=', $newGame -> id) -> get();
 
 		foreach ($newFriendsGame as $card) {
-			array_push($flipped_status_1, ['friends_game_id' => $card -> id, 'player_id' => $request -> players[0]]);
+			array_push($flipped_status_1, ['friends_game_id' => $card -> id, 'player_id' => $request -> players[0], 'target_card' => 0]);
 			// array_push($flipped_status, ['friends_game_id' => $card -> id, 'player_id' => $request -> players[1]]);
 		}
 
@@ -223,7 +223,7 @@ class SmackTalkController extends Controller
 		$flipped_status_1[$random_index]['target_card'] = 1;
 
 		foreach($newFriendsGame as $card) {
-			array_push($flipped_status_2, ['friends_game_id' => $card -> id, 'player_id' => $request -> players[1]]);
+			array_push($flipped_status_2, ['friends_game_id' => $card -> id, 'player_id' => $request -> players[1], 'target_card' => 0]);
 		}
 
 		$random_index = rand(0, count($flipped_status_2) - 1);
@@ -231,21 +231,22 @@ class SmackTalkController extends Controller
 		$flipped_status_2[$random_index]['target_card'] = 1;
 
 
-		FlippedStatus :: insert($flipped_status_1, $flipped_status_2);
+		FlippedStatus :: insert($flipped_status_1);
+		FlippedStatus :: insert($flipped_status_2);
 
-		return response() -> json([$flipped_status_1, $flipped_status_2]);
+		// return response() -> json([$newGame -> id, $newGame -> whose_turn]);
 		// $cardInfo = People :: whereIn('id', $friend_ids) -> get();
-		$newCards = $newFriendsGame -> friends() -> join('people', 'people.id', '=', 'friends_game.friend_id') -> get();
-		// $nextCards = DB ::table('flipped_status')
-		// 		-> select('people.name', 'people.picture', 'flipped_status.id as card_id', 'friends_game.game_id', 'flipped_status.flipped_status')
-		// 		-> join('friends_game', 'flipped_status.friends_game_id', '=', 'friends_game.id') 
-		// 		-> join('people', 'friends_game.friend_id', '=', 'people.id')
-		// 		-> where('flipped_status.player_id', '=', $next_up)
-		// 		-> where('friends_game.game_id', '=', $game_id)
-		// 		-> get();
+		// $newCards = $newFriendsGame -> friends() -> join('people', 'people.id', '=', 'friends_game.friend_id') -> get();
+		$nextCards = DB :: table('flipped_status')
+				-> select('people.name', 'people.picture', 'flipped_status.id as card_id', 'friends_game.game_id', 'flipped_status.flipped_status', 'flipped_status.target_card')
+				-> join('friends_game', 'flipped_status.friends_game_id', '=', 'friends_game.id') 
+				-> join('people', 'friends_game.friend_id', '=', 'people.id')
+				-> where('flipped_status.player_id', '=', $newGame -> whose_turn)
+				-> where('friends_game.game_id', '=', $newGame -> id)
+				-> get();
 		
 		// want to return associative array that contains friend. Don't need to include flipped status b/c it's a new game therefore all cards are not flipped
-		return response() -> json($newCards);
+		return response() -> json($nextCards);
 	}
 
 
