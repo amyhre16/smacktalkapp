@@ -215,8 +215,42 @@ class SmackTalkController extends Controller
 			}
 	*/
 	public function finishGame(Request $request) {
-		$game = Game :: where('id', $request -> game_id)
-			-> update(['in_progress' => 0, 'winner_id' => $request -> winner_id, 'loser_id' => $request -> loser_id]);
+		$game_id = $request -> game_id;
+		$winner_id = $request -> winner_id;
+		$loser_id = $request -> loser_id;
+
+		// update winner's stats
+		$winner_stats = People :: select('wins', 'currentStreak', 'longestStreak')
+			-> where('id', '=', $winner_id)
+			-> get()[0];
+		
+		$wins = $winner_stats -> wins;
+		$current_streak = $winner_stats -> currentStreak;
+		$longest_streak = $winner_stats -> longestStreak;
+
+		$wins += 1;
+		$current_streak += 1;
+
+		if ($current_streak > $longest_streak) {
+			$longest_streak = $current_streak;
+		}
+
+		$winner = People :: where('id', '=', $winner_id)
+			-> update(['wins' => $wins, 'currentStreak' => $current_streak, 'longestStreak' => $longest_streak]);
+		
+
+		$loser_stats = People :: select('losses', 'currentStreak')
+			-> where('id', '=', $loser_id)
+			-> get()[0];
+		$losses = $loser_stats -> losses;
+		
+		$losses += 1;
+
+		$loser = People :: where('id', '=', $loser_id)
+			-> update(['losses' => $losses, 'currentStreak' => 0]);
+		
+		$game = Game :: where('id', $game_id)
+			-> update(['in_progress' => 0, 'winner_id' => $winner_id, 'loser_id' => $loser_id]);
 		
 		return response() -> json($game);
 	}
