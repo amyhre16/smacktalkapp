@@ -193,7 +193,7 @@ class SmackTalkController extends Controller
 		$friendsList = $request -> friends_list;
 
 		$newFriends = [];
-		if (count($newFriends) > 0) {
+		if (count($friendsList) > 0) {
 			foreach ($friendsList as $friend) {
 				array_push($newFriends, ['person_1_id' => $request -> newUser['id'], 'person_2_id' => $friend['id']]);
 			}
