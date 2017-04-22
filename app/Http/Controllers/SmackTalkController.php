@@ -470,7 +470,7 @@ class SmackTalkController extends Controller
 
 		
 		Game :: where('id', '=', $game_id)
-			-> update(['whose_turn'] => $next_up]);
+			-> update(['whose_turn' => $next_up]);
 		
 		// user is going to guess next
 		if ($user_id == $next_up) {
